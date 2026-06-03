@@ -16,6 +16,12 @@ export function mapOpenAI(chunk: any): StreamEvent[] {
 
   const delta = choice.delta;
   if (delta) {
+    // Reasoning models on OpenAI-compatible endpoints (e.g. DeepSeek R1) stream
+    // their thinking in `reasoning_content` (some use `reasoning`).
+    const reasoning = delta.reasoning_content ?? delta.reasoning;
+    if (typeof reasoning === 'string' && reasoning.length > 0) {
+      events.push({ type: 'reasoning', text: reasoning });
+    }
     if (typeof delta.content === 'string' && delta.content.length > 0) {
       events.push({ type: 'text', text: delta.content });
     }

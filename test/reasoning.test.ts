@@ -3,6 +3,7 @@ import {
   collectStream,
   parseAnthropicStream,
   parseGeminiStream,
+  parseOpenAIStream,
 } from '../src/index.ts';
 import { anthropicBody, chunks, drain, sseBody } from './helpers.ts';
 
@@ -49,6 +50,30 @@ describe('reasoning / thinking', () => {
     const message = await collectStream(parseAnthropicStream(chunks(body)));
     expect(message.reasoning).toBe('Let me think. OK.');
     expect(message.text).toBe('The answer.');
+  });
+
+  it('maps OpenAI-compatible reasoning_content to reasoning (e.g. DeepSeek R1)', async () => {
+    const body = sseBody(
+      [
+        { choices: [{ delta: { reasoning_content: 'Let me ' } }] },
+        { choices: [{ delta: { reasoning_content: 'work it out.' } }] },
+        { choices: [{ delta: { content: '42' } }] },
+        { choices: [{ delta: {}, finish_reason: 'stop' }] },
+      ],
+      { done: true },
+    );
+
+    const events = await drain(parseOpenAIStream(chunks(body)));
+    expect(events).toEqual([
+      { type: 'reasoning', text: 'Let me ' },
+      { type: 'reasoning', text: 'work it out.' },
+      { type: 'text', text: '42' },
+      { type: 'finish', reason: 'stop' },
+    ]);
+
+    const message = await collectStream(parseOpenAIStream(chunks(body)));
+    expect(message.reasoning).toBe('Let me work it out.');
+    expect(message.text).toBe('42');
   });
 
   it('maps Gemini thought parts to reasoning', async () => {

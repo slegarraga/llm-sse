@@ -1,7 +1,7 @@
 {
-  "name": "llm-stream",
+  "name": "llm-sse",
   "version": "0.1.0",
-  "description": "Parse streaming responses from OpenAI, Anthropic and Gemini into one unified event format. Text and tool-call deltas. Zero dependencies.",
+  "description": "Parse streaming SSE responses from OpenAI, Anthropic and Gemini into one unified event format. Text and tool-call deltas. Zero dependencies.",
   "keywords": [
     "openai",
     "anthropic",
@@ -23,11 +23,11 @@
   "author": "Sebastian Legarraga",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/slegarraga/llm-stream.git"
+    "url": "git+https://github.com/slegarraga/llm-sse.git"
   },
-  "homepage": "https://github.com/slegarraga/llm-stream#readme",
+  "homepage": "https://github.com/slegarraga/llm-sse#readme",
   "bugs": {
-    "url": "https://github.com/slegarraga/llm-stream/issues"
+    "url": "https://github.com/slegarraga/llm-sse/issues"
   },
   "type": "module",
   "main": "./dist/index.cjs",

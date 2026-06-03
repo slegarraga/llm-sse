@@ -1,4 +1,4 @@
-# Contributing to llm-stream
+# Contributing to llm-sse
 
 Thanks for taking the time to contribute. This project aims to be a small,
 dependable, zero-dependency building block, so the bar for changes is clarity
@@ -7,8 +7,8 @@ and correctness over breadth.
 ## Getting started
 
 ```sh
-git clone https://github.com/slegarraga/llm-stream.git
-cd llm-stream
+git clone https://github.com/slegarraga/llm-sse.git
+cd llm-sse
 npm install
 ```
 

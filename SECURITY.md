@@ -8,7 +8,7 @@ The latest published `0.x` release receives security fixes.
 
 Please report security issues privately rather than opening a public issue.
 
-- Use GitHub's [private vulnerability reporting](https://github.com/slegarraga/llm-stream/security/advisories/new), or
+- Use GitHub's [private vulnerability reporting](https://github.com/slegarraga/llm-sse/security/advisories/new), or
 - Email **slegarraga@gmail.com** with the details.
 
 Include a description, a reproduction, and the impact. You can expect an initial
@@ -17,7 +17,7 @@ the advisory unless you prefer to remain anonymous.
 
 ## Scope
 
-`llm-stream` has zero runtime dependencies and performs only in-memory parsing
+`llm-sse` has zero runtime dependencies and performs only in-memory parsing
 of streamed text: it does not make network requests, read or write files, or
 execute code from its input. The most relevant risks are denial of service from
 pathological input (for example, unbounded buffering on a stream with no event

@@ -1,11 +1,11 @@
-# llm-stream
+# llm-sse
 
 > Parse streaming responses from OpenAI, Anthropic and Gemini into one unified event format. Text and tool-call deltas, handled. **Zero dependencies.**
 
-Each provider streams differently. OpenAI sends `choices[].delta` chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini sends `candidates[].content.parts` — and the SSE framing, tool-call argument fragments and stop reasons are all shaped differently. `llm-stream` turns any of them into the same small set of events, so your streaming UI or agent loop stays provider-agnostic.
+Each provider streams differently. OpenAI sends `choices[].delta` chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini sends `candidates[].content.parts` — and the SSE framing, tool-call argument fragments and stop reasons are all shaped differently. `llm-sse` turns any of them into the same small set of events, so your streaming UI or agent loop stays provider-agnostic.
 
 ```ts
-import { parseOpenAIStream, collectStream } from 'llm-stream';
+import { parseOpenAIStream, collectStream } from 'llm-sse';
 
 const res = await fetch('https://api.openai.com/v1/chat/completions', {
   method: 'POST',
@@ -32,7 +32,7 @@ for await (const event of parseOpenAIStream(res.body)) {
 ## Install
 
 ```sh
-npm install llm-stream
+npm install llm-sse
 ```
 
 ## API

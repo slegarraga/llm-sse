@@ -19,4 +19,4 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and `Uint8Array` or string sources.
 - Zero runtime dependencies; ESM + CJS builds with type declarations.
 
-[0.1.0]: https://github.com/slegarraga/llm-stream/releases/tag/v0.1.0
+[0.1.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.1.0

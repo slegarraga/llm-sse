@@ -24,7 +24,11 @@ export function mapGemini(chunk: any, state: GeminiState): StreamEvent[] {
   if (Array.isArray(parts)) {
     for (const part of parts) {
       if (typeof part.text === 'string' && part.text.length > 0) {
-        events.push({ type: 'text', text: part.text });
+        // Gemini flags a thinking part with `thought: true`.
+        events.push({
+          type: part.thought === true ? 'reasoning' : 'text',
+          text: part.text,
+        });
       }
       if (part.functionCall) {
         const index = state.toolIndex++;

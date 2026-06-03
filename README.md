@@ -52,11 +52,14 @@ Same thing, dispatching on `provider` (`'openai' | 'anthropic' | 'gemini'`).
 ```ts
 type StreamEvent =
   | { type: 'text'; text: string }
+  | { type: 'reasoning'; text: string } // extended thinking, kept apart from text
   | { type: 'tool_call_start'; index: number; id?: string; name?: string }
   | { type: 'tool_call_delta'; index: number; argumentsDelta: string }
   | { type: 'finish'; reason?: string }
   | { type: 'error'; error: unknown };
 ```
+
+> `reasoning` carries the model's thinking — Anthropic extended thinking (`thinking_delta`) and Gemini `thought` parts — separately from `text`, so you can render it in its own affordance or drop it.
 
 ### `collectStream(events)`
 

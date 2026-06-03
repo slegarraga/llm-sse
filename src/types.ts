@@ -14,6 +14,12 @@ export type StreamEvent =
   /** A chunk of assistant text. */
   | { type: 'text'; text: string }
   /**
+   * A chunk of the model's reasoning / "thinking" (Anthropic extended thinking,
+   * Gemini thought parts). Kept separate from `text` so callers can show it in a
+   * distinct UI affordance, or drop it, without it polluting the answer.
+   */
+  | { type: 'reasoning'; text: string }
+  /**
    * A tool/function call began. `index` identifies the call within the turn so
    * later {@link ToolCallDeltaEvent}s can be matched to it.
    */
@@ -38,6 +44,8 @@ export interface CollectedToolCall {
 export interface CollectedMessage {
   /** All text deltas concatenated in order. */
   text: string;
+  /** All reasoning / thinking deltas concatenated in order. */
+  reasoning: string;
   /** Tool calls accumulated in order of first appearance. */
   toolCalls: CollectedToolCall[];
   /** The stop reason from the final `finish` event, if any. */

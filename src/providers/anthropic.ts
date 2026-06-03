@@ -28,6 +28,11 @@ export function mapAnthropic(event: any): StreamEvent[] {
       if (delta?.type === 'text_delta' && typeof delta.text === 'string') {
         events.push({ type: 'text', text: delta.text });
       } else if (
+        delta?.type === 'thinking_delta' &&
+        typeof delta.thinking === 'string'
+      ) {
+        events.push({ type: 'reasoning', text: delta.thinking });
+      } else if (
         delta?.type === 'input_json_delta' &&
         typeof delta.partial_json === 'string'
       ) {

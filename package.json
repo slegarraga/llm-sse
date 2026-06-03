@@ -1,7 +1,7 @@
 {
   "name": "llm-sse",
-  "version": "0.1.0",
-  "description": "Parse streaming SSE responses from OpenAI, Anthropic and Gemini into one unified event format. Text and tool-call deltas. Zero dependencies.",
+  "version": "0.2.0",
+  "description": "Parse streaming SSE responses from OpenAI, Anthropic and Gemini into one unified event format. Text, reasoning and tool-call deltas. Zero dependencies.",
   "keywords": [
     "openai",
     "anthropic",

@@ -21,6 +21,7 @@ export async function collectStream(
   events: AsyncIterable<StreamEvent>,
 ): Promise<CollectedMessage> {
   let text = '';
+  let reasoning = '';
   let finishReason: string | undefined;
   const byIndex = new Map<number, CollectedToolCall>();
   const order: number[] = [];
@@ -39,6 +40,9 @@ export async function collectStream(
     switch (event.type) {
       case 'text':
         text += event.text;
+        break;
+      case 'reasoning':
+        reasoning += event.text;
         break;
       case 'tool_call_start': {
         const call = ensure(event.index);
@@ -63,6 +67,7 @@ export async function collectStream(
 
   return {
     text,
+    reasoning,
     toolCalls: order.map((index) => byIndex.get(index)!),
     finishReason,
   };

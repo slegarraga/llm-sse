@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-06-03
+
+### Added
+
+- `reasoning` stream event for model thinking, kept separate from `text`. Maps
+  Anthropic `thinking_delta` and Gemini `thought` parts.
+- `CollectedMessage.reasoning` — reasoning deltas accumulated by `collectStream`.
+
 ## [0.1.0] - 2026-06-03
 
 ### Added
@@ -19,4 +27,5 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and `Uint8Array` or string sources.
 - Zero runtime dependencies; ESM + CJS builds with type declarations.
 
+[0.2.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.2.0
 [0.1.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.1.0

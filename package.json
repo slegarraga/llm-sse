@@ -1,0 +1,75 @@
+{
+  "name": "llm-stream",
+  "version": "0.1.0",
+  "description": "Parse streaming responses from OpenAI, Anthropic and Gemini into one unified event format. Text and tool-call deltas. Zero dependencies.",
+  "keywords": [
+    "openai",
+    "anthropic",
+    "claude",
+    "gemini",
+    "llm",
+    "stream",
+    "streaming",
+    "sse",
+    "server-sent-events",
+    "tool-calls",
+    "delta",
+    "provider",
+    "portability",
+    "ai",
+    "agents"
+  ],
+  "license": "MIT",
+  "author": "Sebastian Legarraga",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slegarraga/llm-stream.git"
+  },
+  "homepage": "https://github.com/slegarraga/llm-stream#readme",
+  "bugs": {
+    "url": "https://github.com/slegarraga/llm-stream/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.1",
+    "eslint": "^10.4.1",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.60.0",
+    "vitest": "^2.1.8"
+  }
+}

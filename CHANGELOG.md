@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-03
+
+### Added
+
+- `toAssistantMessage(collected)` — turn a collected stream into a standard
+  OpenAI-shape assistant message (the canonical hub format), so a streamed
+  response composes directly with `llm-messages`' `toAnthropic` / `toGemini`.
+  Synthesizes ids for tool calls that lack one.
+
 ## [0.2.0] - 2026-06-03
 
 ### Added
@@ -27,5 +36,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and `Uint8Array` or string sources.
 - Zero runtime dependencies; ESM + CJS builds with type declarations.
 
+[0.3.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.3.0
 [0.2.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.2.0
 [0.1.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.1.0

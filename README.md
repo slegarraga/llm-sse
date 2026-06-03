@@ -66,10 +66,24 @@ type StreamEvent =
 Drains an event stream into a single message:
 
 ```ts
-const { text, toolCalls, finishReason } = await collectStream(
+const { text, reasoning, toolCalls, finishReason } = await collectStream(
   parseAnthropicStream(res.body),
 );
 // toolCalls: { index, id?, name?, arguments }[]  — arguments is the joined JSON string
+```
+
+### `toAssistantMessage(collected)`
+
+Turn a collected stream into a standard OpenAI-shape assistant message — the format `llm-messages` treats as canonical — so a streamed response composes straight back into your history or into a different provider:
+
+```ts
+import { collectStream, toAssistantMessage } from 'llm-sse';
+import { toAnthropic } from 'llm-messages';
+
+const message = toAssistantMessage(
+  await collectStream(parseOpenAIStream(res.body)),
+);
+const claudeBody = toAnthropic([...history, message]); // continue on Claude
 ```
 
 ### `sseData(source)`

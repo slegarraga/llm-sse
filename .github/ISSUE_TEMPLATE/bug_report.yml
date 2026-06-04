@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a stream that parses incorrectly
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report. A minimal stream fixture makes a bug fixable.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version of llm-sse?
+      placeholder: 0.4.1
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider/parser
+      description: Which parser is affected?
+      options:
+        - parseOpenAIStream
+        - parseAnthropicStream
+        - parseGeminiStream
+        - collectStream
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Stream fixture
+      description: Minimal chunks or SSE events that reproduce the issue.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What events you expected, and what events were emitted instead.
+    validations:
+      required: true

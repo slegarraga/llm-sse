@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/llm-sse.svg)](https://www.npmjs.com/package/llm-sse)
 [![npm downloads](https://img.shields.io/npm/dm/llm-sse.svg)](https://www.npmjs.com/package/llm-sse)
 [![CI](https://github.com/slegarraga/llm-sse/actions/workflows/ci.yml/badge.svg)](https://github.com/slegarraga/llm-sse/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/slegarraga/llm-sse/badge)](https://scorecard.dev/viewer/?uri=github.com/slegarraga/llm-sse)
 [![license](https://img.shields.io/npm/l/llm-sse.svg)](./LICENSE)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](./package.json)
 

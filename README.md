@@ -9,6 +9,9 @@
 
 > Parse streaming responses from OpenAI, Anthropic, Gemini and OpenAI-compatible providers into one unified event format. Text, reasoning and tool-call deltas, handled. **Zero dependencies.**
 
+Security posture is tracked in [docs/security-posture.md](./docs/security-posture.md),
+including CodeQL, OpenSSF Scorecard, Dependabot and branch rules.
+
 Each provider streams differently. OpenAI sends `choices[].delta` chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini sends `candidates[].content.parts` — and the SSE framing, tool-call argument fragments and stop reasons are all shaped differently. `llm-sse` turns any of them into the same small set of events, so your streaming UI or agent loop stays provider-agnostic.
 
 ```ts

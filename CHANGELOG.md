@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2026-06-05
+
+### Added
+
+- Added a public cross-provider stream fixture corpus for OpenAI, Anthropic and
+  Gemini weather-tool calls.
+- Added tests that parse the corpus and compare normalized `StreamEvent[]` and
+  collected message outputs, including byte-split stream boundaries.
+- Published the `fixtures/` directory in the npm package for downstream parser
+  and agent-loop tests.
+
 ## [0.4.2] - 2026-06-04
 
 ### Changed

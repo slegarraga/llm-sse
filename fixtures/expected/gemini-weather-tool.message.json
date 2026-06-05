@@ -1,0 +1,12 @@
+{
+  "text": "Let me check Santiago. ",
+  "reasoning": "Need weather lookup. ",
+  "toolCalls": [
+    {
+      "index": 0,
+      "name": "get_weather",
+      "arguments": "{\"city\":\"Santiago\",\"units\":\"metric\"}"
+    }
+  ],
+  "finishReason": "STOP"
+}

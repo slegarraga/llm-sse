@@ -36,6 +36,7 @@ for await (const event of parseOpenAIStream(res.body)) {
 - **One event shape, three providers.** `text`, `tool_call_start`, `tool_call_delta`, `finish`, `error` — the same whether the bytes came from OpenAI, Anthropic or Gemini.
 - **Tool calls just accumulate.** Streamed JSON argument fragments carry an `index`; concatenate by index (or let `collectStream` do it) to get the full call.
 - **Correct SSE framing.** Robust to chunk boundaries splitting a line or event mid-way, CRLF, multi-line `data:` fields, comments and keep-alives.
+- **Fixture-backed provider coverage.** Public OpenAI, Anthropic and Gemini `.sse` fixtures exercise text, reasoning, tool-call arguments and finish reasons.
 - **Bytes or strings.** Feed it a `fetch()` `ReadableStream<Uint8Array>`, a Node stream, or an async iterable of strings — multibyte UTF-8 split across chunks is handled.
 - **Zero dependencies**, ESM + CJS, fully typed.
 
@@ -105,6 +106,20 @@ The underlying SSE parser, exported for advanced use: yields the `data` payload 
 ## Tool calls
 
 All three providers are normalized to the same pattern: a `tool_call_start` (with `index`, and `id` / `name` when available) followed by one or more `tool_call_delta`s whose `argumentsDelta` strings concatenate into the call's JSON arguments. OpenAI and Anthropic fragment the arguments; Gemini sends them whole in a single delta. `collectStream` joins them for you.
+
+## Fixture corpus
+
+The package includes a small public fixture corpus under [`fixtures/`](./fixtures):
+
+- `openai-weather-tool.sse`
+- `anthropic-weather-tool.sse`
+- `gemini-weather-tool.sse`
+- expected normalized events and collected messages under `fixtures/expected/`
+
+Each fixture describes the same semantic turn: reasoning, visible text, a
+`get_weather` tool call, JSON arguments and provider-specific finish reason.
+The tests parse the fixtures directly, including byte-split stream boundaries,
+so contributors can change parsers with a stable cross-provider contract.
 
 ## Related
 

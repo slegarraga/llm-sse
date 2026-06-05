@@ -1,6 +1,6 @@
 {
   "name": "llm-sse",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "Parse streaming SSE responses from OpenAI, Anthropic, Gemini and OpenAI-compatible providers into one unified event format. Text, reasoning and tool-call deltas. Zero dependencies.",
   "keywords": [
     "openai",
@@ -47,6 +47,7 @@
   },
   "files": [
     "dist",
+    "fixtures",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
@@ -72,8 +73,8 @@
     "eslint": "^10.4.1",
     "prettier": "^3.4.2",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.0",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.8"
   }
 }

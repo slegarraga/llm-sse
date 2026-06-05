@@ -1,0 +1,14 @@
+data: {"id":"chatcmpl_fixture_openai_weather","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"role":"assistant","reasoning_content":"Need weather lookup. "}}]}
+
+data: {"id":"chatcmpl_fixture_openai_weather","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Let me check Santiago. "}}]}
+
+data: {"id":"chatcmpl_fixture_openai_weather","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_weather_1","type":"function","function":{"name":"get_weather","arguments":""}}]}}]}
+
+data: {"id":"chatcmpl_fixture_openai_weather","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\"city\":"}}]}}]}
+
+data: {"id":"chatcmpl_fixture_openai_weather","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"\"Santiago\",\"units\":\"metric\"}"}}]}}]}
+
+data: {"id":"chatcmpl_fixture_openai_weather","object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":"tool_calls"}]}
+
+data: [DONE]
+

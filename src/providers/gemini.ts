@@ -23,6 +23,10 @@ export function mapGemini(chunk: any, state: GeminiState): StreamEvent[] {
   const parts = candidate.content?.parts;
   if (Array.isArray(parts)) {
     for (const part of parts) {
+      if (!part || typeof part !== 'object') {
+        continue;
+      }
+
       if (typeof part.text === 'string' && part.text.length > 0) {
         // Gemini flags a thinking part with `thought: true`.
         events.push({
@@ -30,23 +34,33 @@ export function mapGemini(chunk: any, state: GeminiState): StreamEvent[] {
           text: part.text,
         });
       }
-      if (part.functionCall) {
+      const functionCall = part.functionCall;
+      if (
+        functionCall &&
+        typeof functionCall === 'object' &&
+        !Array.isArray(functionCall) &&
+        typeof functionCall.name === 'string' &&
+        functionCall.name.length > 0
+      ) {
         const index = state.toolIndex++;
         events.push({
           type: 'tool_call_start',
           index,
-          name: part.functionCall.name,
+          name: functionCall.name,
         });
         events.push({
           type: 'tool_call_delta',
           index,
-          argumentsDelta: JSON.stringify(part.functionCall.args ?? {}),
+          argumentsDelta: JSON.stringify(functionCall.args ?? {}),
         });
       }
     }
   }
 
-  if (candidate.finishReason) {
+  if (
+    typeof candidate.finishReason === 'string' &&
+    candidate.finishReason.length > 0
+  ) {
     events.push({ type: 'finish', reason: candidate.finishReason });
   }
   return events;

@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.4.4] - 2026-06-07
+
+### Changed
+
+- Hardened streaming parsers around malformed JSON-like events, whitespace-padded
+  `[DONE]` sentinels, malformed Anthropic/OpenAI tool-call entries, malformed
+  Gemini parts and OpenAI chunks containing multiple choices.
+- Documented parser caveats for non-JSON keep-alives, malformed JSON recovery,
+  malformed provider event shapes and OpenAI multi-choice chunks.
+
 ## [0.4.3] - 2026-06-05
 
 ### Added

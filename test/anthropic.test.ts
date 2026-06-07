@@ -97,4 +97,55 @@ describe('anthropic stream', () => {
       },
     ]);
   });
+
+  it('ignores malformed tool events without losing valid deltas', async () => {
+    const body = anthropicBody([
+      {
+        type: 'content_block_start',
+        index: 'bad',
+        content_block: { type: 'tool_use', id: 12, name: { bad: true } },
+      },
+      {
+        type: 'content_block_delta',
+        index: 'bad',
+        delta: { type: 'input_json_delta', partial_json: '{"bad":true}' },
+      },
+      {
+        type: 'content_block_delta',
+        index: 0,
+        delta: { type: 'unknown_delta', text: 'ignored' },
+      },
+      {
+        type: 'content_block_delta',
+        index: 0,
+        delta: { type: 'text_delta', text: 'ok' },
+      },
+      {
+        type: 'content_block_delta',
+        index: 0,
+        delta: { type: 'thinking_delta', thinking: ' thoughts' },
+      },
+      {
+        type: 'content_block_start',
+        index: 1,
+        content_block: { type: 'tool_use', id: 'toolu_valid', name: 'lookup' },
+      },
+      {
+        type: 'content_block_delta',
+        index: 1,
+        delta: { type: 'input_json_delta', partial_json: '{"city":"SF"}' },
+      },
+      { type: 'message_delta', delta: { stop_reason: { bad: true } } },
+      { type: 'message_delta', delta: { stop_reason: 'tool_use' } },
+    ]);
+
+    const events = await drain(parseAnthropicStream(chunks(body)));
+    expect(events).toEqual([
+      { type: 'text', text: 'ok' },
+      { type: 'reasoning', text: ' thoughts' },
+      { type: 'tool_call_start', index: 1, id: 'toolu_valid', name: 'lookup' },
+      { type: 'tool_call_delta', index: 1, argumentsDelta: '{"city":"SF"}' },
+      { type: 'finish', reason: 'tool_use' },
+    ]);
+  });
 });

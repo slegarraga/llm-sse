@@ -23,6 +23,11 @@ describe('sseData framing', () => {
     expect(await drain(sseData(chunks(body)))).toEqual(['line1\nline2']);
   });
 
+  it('handles data fields without a colon', async () => {
+    const body = 'data\n\ndata: value\n\n';
+    expect(await drain(sseData(chunks(body)))).toEqual(['', 'value']);
+  });
+
   it('ignores comments and other SSE fields', async () => {
     const body = ': keep-alive\nevent: ping\ndata: x\nid: 1\n\n';
     expect(await drain(sseData(chunks(body)))).toEqual(['x']);
@@ -45,10 +50,28 @@ describe('parseStream dispatcher', () => {
     expect(events).toEqual([{ type: 'text', text: 'hi' }]);
   });
 
+  it('stops at [DONE] with surrounding whitespace', async () => {
+    const body =
+      'data: {"choices":[{"delta":{"content":"hi"}}]}\n\ndata:  [DONE] \n\ndata: {"choices":[{"delta":{"content":"ignored"}}]}\n\n';
+    const events = await drain(parseStream(chunks(body), 'openai'));
+    expect(events).toEqual([{ type: 'text', text: 'hi' }]);
+  });
+
   it('skips non-JSON data lines without throwing', async () => {
     const body =
       'data: not-json\n\ndata: {"choices":[{"delta":{"content":"ok"}}]}\n\n';
     const events = await drain(parseStream(chunks(body), 'openai'));
     expect(events).toEqual([{ type: 'text', text: 'ok' }]);
+  });
+
+  it('surfaces malformed JSON-looking data as an error and keeps parsing', async () => {
+    const body =
+      'data: {"choices":[\n\ndata: {"choices":[{"delta":{"content":"ok"}}]}\n\n';
+    const events = await drain(parseStream(chunks(body), 'openai'));
+    expect(events[0]).toMatchObject({
+      type: 'error',
+      error: { type: 'malformed_json' },
+    });
+    expect(events.slice(1)).toEqual([{ type: 'text', text: 'ok' }]);
   });
 });

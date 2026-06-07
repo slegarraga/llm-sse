@@ -10,13 +10,17 @@ async function* parseWith(
   map: (payload: any) => StreamEvent[],
 ): AsyncGenerator<StreamEvent> {
   for await (const data of sseData(source)) {
-    if (data === '[DONE]') {
+    if (isDone(data)) {
       return;
     }
     let payload: unknown;
     try {
       payload = JSON.parse(data);
-    } catch {
+    } catch (error) {
+      const trimmed = data.trimStart();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        yield malformedJsonEvent(error);
+      }
       continue; // ignore keep-alive / non-JSON data lines
     }
     for (const event of map(payload)) {
@@ -45,13 +49,17 @@ export async function* parseGeminiStream(
 ): AsyncGenerator<StreamEvent> {
   const state = { toolIndex: 0 };
   for await (const data of sseData(source)) {
-    if (data === '[DONE]') {
+    if (isDone(data)) {
       return;
     }
     let payload: unknown;
     try {
       payload = JSON.parse(data);
-    } catch {
+    } catch (error) {
+      const trimmed = data.trimStart();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        yield malformedJsonEvent(error);
+      }
       continue;
     }
     for (const event of mapGemini(payload, state)) {
@@ -73,4 +81,18 @@ export function parseStream(
     case 'gemini':
       return parseGeminiStream(source);
   }
+}
+
+function malformedJsonEvent(error: unknown): StreamEvent {
+  return {
+    type: 'error',
+    error: {
+      type: 'malformed_json',
+      message: error instanceof Error ? error.message : String(error),
+    },
+  };
+}
+
+function isDone(data: string): boolean {
+  return data.trim() === '[DONE]';
 }

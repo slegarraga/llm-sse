@@ -61,4 +61,33 @@ describe('gemini stream', () => {
       { index: 1, name: 'b', arguments: '{"x":1}' },
     ]);
   });
+
+  it('ignores malformed parts and function calls without losing valid parts', async () => {
+    const body = sseBody([
+      {
+        candidates: [
+          {
+            content: {
+              parts: [
+                null,
+                { functionCall: true },
+                { functionCall: { args: { ignored: true } } },
+                { functionCall: { name: 'valid', args: { ok: true } } },
+                { text: ' done' },
+              ],
+            },
+            finishReason: 'STOP',
+          },
+        ],
+      },
+    ]);
+
+    const events = await drain(parseGeminiStream(chunks(body)));
+    expect(events).toEqual([
+      { type: 'tool_call_start', index: 0, name: 'valid' },
+      { type: 'tool_call_delta', index: 0, argumentsDelta: '{"ok":true}' },
+      { type: 'text', text: ' done' },
+      { type: 'finish', reason: 'STOP' },
+    ]);
+  });
 });

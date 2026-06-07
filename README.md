@@ -103,6 +103,14 @@ const claudeBody = toAnthropic([...history, message]); // continue on Claude
 
 The underlying SSE parser, exported for advanced use: yields the `data` payload of each event as a string.
 
+## Caveats
+
+- Non-JSON `data:` payloads are treated as keep-alives and skipped by provider parsers.
+- JSON-looking malformed payloads surface as `error` events and parsing continues with later events.
+- Provider parsers ignore SSE `event:` names and key off the JSON `data:` payload shape.
+- Malformed provider event shapes are skipped when they cannot produce a valid normalized event.
+- OpenAI chunks with multiple `choices` are emitted in provider order, but normalized events do not carry a choice index.
+
 ## Tool calls
 
 All three providers are normalized to the same pattern: a `tool_call_start` (with `index`, and `id` / `name` when available) followed by one or more `tool_call_delta`s whose `argumentsDelta` strings concatenate into the call's JSON arguments. OpenAI and Anthropic fragment the arguments; Gemini sends them whole in a single delta. `collectStream` joins them for you.

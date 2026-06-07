@@ -14,11 +14,15 @@ export function mapAnthropic(event: any): StreamEvent[] {
     case 'content_block_start': {
       const block = event.content_block;
       if (block?.type === 'tool_use') {
+        const index = blockIndex(event.index);
+        if (index === undefined) {
+          break;
+        }
         events.push({
           type: 'tool_call_start',
-          index: event.index ?? 0,
-          id: block.id,
-          name: block.name,
+          index,
+          id: typeof block.id === 'string' ? block.id : undefined,
+          name: typeof block.name === 'string' ? block.name : undefined,
         });
       }
       break;
@@ -36,9 +40,13 @@ export function mapAnthropic(event: any): StreamEvent[] {
         delta?.type === 'input_json_delta' &&
         typeof delta.partial_json === 'string'
       ) {
+        const index = blockIndex(event.index);
+        if (index === undefined) {
+          break;
+        }
         events.push({
           type: 'tool_call_delta',
-          index: event.index ?? 0,
+          index,
           argumentsDelta: delta.partial_json,
         });
       }
@@ -46,7 +54,7 @@ export function mapAnthropic(event: any): StreamEvent[] {
     }
     case 'message_delta': {
       const reason = event.delta?.stop_reason;
-      if (reason) {
+      if (typeof reason === 'string' && reason.length > 0) {
         events.push({ type: 'finish', reason });
       }
       break;
@@ -58,4 +66,10 @@ export function mapAnthropic(event: any): StreamEvent[] {
   }
 
   return events;
+}
+
+function blockIndex(index: unknown): number | undefined {
+  return typeof index === 'number' && Number.isInteger(index) && index >= 0
+    ? index
+    : undefined;
 }

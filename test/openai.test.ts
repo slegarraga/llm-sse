@@ -58,6 +58,43 @@ describe('openai stream', () => {
     ]);
   });
 
+  it('emits events for every choice and skips malformed tool-call entries', async () => {
+    const body = sseBody([
+      {
+        choices: [
+          {
+            delta: {
+              content: 'first',
+              tool_calls: [
+                null,
+                {
+                  index: 0,
+                  id: 'call_1',
+                  function: { name: 'lookup', arguments: '{"a":1}' },
+                },
+              ],
+            },
+            finish_reason: 'stop',
+          },
+          {
+            delta: { content: 'second', tool_calls: [false] },
+            finish_reason: 'length',
+          },
+        ],
+      },
+    ]);
+
+    const events = await drain(parseOpenAIStream(chunks(body)));
+    expect(events).toEqual([
+      { type: 'text', text: 'first' },
+      { type: 'tool_call_start', index: 0, id: 'call_1', name: 'lookup' },
+      { type: 'tool_call_delta', index: 0, argumentsDelta: '{"a":1}' },
+      { type: 'finish', reason: 'stop' },
+      { type: 'text', text: 'second' },
+      { type: 'finish', reason: 'length' },
+    ]);
+  });
+
   it('collects into a message with joined tool arguments', async () => {
     const message = await collectStream(parseOpenAIStream(chunks(STREAM)));
     expect(message.text).toBe('Hello world');

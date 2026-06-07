@@ -36,6 +36,32 @@ export async function* sseData(source: ChunkSource): AsyncGenerator<string> {
   let buffer = '';
   let dataLines: string[] = [];
 
+  const addLine = (line: string): void => {
+    if (line[0] === ':') {
+      return; // comment
+    }
+
+    const separator = line.indexOf(':');
+    const field = separator === -1 ? line : line.slice(0, separator);
+    let value = separator === -1 ? '' : line.slice(separator + 1);
+    if (value.startsWith(' ')) {
+      value = value.slice(1);
+    }
+
+    if (field === 'data') {
+      dataLines.push(value);
+    }
+  };
+
+  const finishEvent = (): string | undefined => {
+    if (dataLines.length === 0) {
+      return undefined;
+    }
+    const data = dataLines.join('\n');
+    dataLines = [];
+    return data;
+  };
+
   for await (const text of decodeChunks(source)) {
     buffer += text;
 
@@ -46,27 +72,23 @@ export async function* sseData(source: ChunkSource): AsyncGenerator<string> {
 
       if (line === '') {
         // Blank line terminates an event.
-        if (dataLines.length > 0) {
-          yield dataLines.join('\n');
-          dataLines = [];
+        const data = finishEvent();
+        if (data !== undefined) {
+          yield data;
         }
         continue;
       }
-      if (line[0] === ':') {
-        continue; // comment
-      }
-      if (line.startsWith('data:')) {
-        dataLines.push(line.slice(5).replace(/^ /, ''));
-      }
+      addLine(line);
     }
   }
 
   // A final event may arrive without a trailing blank line.
   const last = buffer.replace(/\r$/, '');
-  if (last.startsWith('data:')) {
-    dataLines.push(last.slice(5).replace(/^ /, ''));
+  if (last !== '') {
+    addLine(last);
   }
-  if (dataLines.length > 0) {
-    yield dataLines.join('\n');
+  const data = finishEvent();
+  if (data !== undefined) {
+    yield data;
   }
 }

@@ -6,6 +6,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-06-12
+
+### Fixed
+
+- Parse SSE streams that use bare carriage-return line endings, and preserve
+  correct CRLF handling when line endings are split across chunks.
+- Strip a leading byte-order mark from string chunk sources, as the SSE spec
+  requires (byte sources were already covered by `TextDecoder`).
+
 ## [0.4.5] - 2026-06-11
 
 ### Changed

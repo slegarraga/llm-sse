@@ -18,9 +18,24 @@ describe('sseData framing', () => {
     expect(await drain(sseData(chunks(body)))).toEqual(['a', 'b']);
   });
 
+  it('handles bare CR line endings', async () => {
+    const body = 'data: a\r\rdata: b\r\r';
+    expect(await drain(sseData(chunks(body)))).toEqual(['a', 'b']);
+  });
+
+  it('handles CRLF line endings split across chunks', async () => {
+    const body = 'data: a\r\n\r\ndata: b\r\n\r\n';
+    expect(await drain(sseData(chunks(body, 1)))).toEqual(['a', 'b']);
+  });
+
   it('joins multi-line data fields with newlines', async () => {
     const body = 'data: line1\ndata: line2\n\n';
     expect(await drain(sseData(chunks(body)))).toEqual(['line1\nline2']);
+  });
+
+  it('strips a leading BOM from string sources', async () => {
+    const body = String.fromCharCode(0xfeff) + 'data: a\n\ndata: b\n\n';
+    expect(await drain(sseData(chunks(body)))).toEqual(['a', 'b']);
   });
 
   it('handles data fields without a colon', async () => {

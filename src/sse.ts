@@ -35,6 +35,9 @@ async function* decodeChunks(source: ChunkSource): AsyncGenerator<string> {
 export async function* sseData(source: ChunkSource): AsyncGenerator<string> {
   let buffer = '';
   let dataLines: string[] = [];
+  // The SSE spec strips one leading BOM. TextDecoder already does this for
+  // byte chunks; this covers sources that yield strings.
+  let atStart = true;
 
   const addLine = (line: string): void => {
     if (line[0] === ':') {
@@ -62,28 +65,57 @@ export async function* sseData(source: ChunkSource): AsyncGenerator<string> {
     return data;
   };
 
+  const processLine = (line: string): string | undefined => {
+    if (line === '') {
+      return finishEvent();
+    }
+    addLine(line);
+    return undefined;
+  };
+
   for await (const text of decodeChunks(source)) {
-    buffer += text;
+    if (atStart && text.length > 0) {
+      atStart = false;
+      buffer += text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+    } else {
+      buffer += text;
+    }
 
-    let newline: number;
-    while ((newline = buffer.indexOf('\n')) !== -1) {
-      const line = buffer.slice(0, newline).replace(/\r$/, '');
-      buffer = buffer.slice(newline + 1);
+    while (buffer.length > 0) {
+      const cr = buffer.indexOf('\r');
+      const lf = buffer.indexOf('\n');
+      let newline: number;
 
-      if (line === '') {
-        // Blank line terminates an event.
-        const data = finishEvent();
-        if (data !== undefined) {
-          yield data;
-        }
-        continue;
+      if (cr === -1) {
+        newline = lf;
+      } else if (lf === -1) {
+        newline = cr;
+      } else {
+        newline = Math.min(cr, lf);
       }
-      addLine(line);
+
+      if (newline === -1) {
+        break;
+      }
+
+      const newlineChar = buffer[newline];
+      if (newlineChar === '\r' && newline === buffer.length - 1) {
+        break;
+      }
+
+      const line = buffer.slice(0, newline);
+      const nextIsLf = newlineChar === '\r' && buffer[newline + 1] === '\n';
+      buffer = buffer.slice(newline + (nextIsLf ? 2 : 1));
+
+      const data = processLine(line);
+      if (data !== undefined) {
+        yield data;
+      }
     }
   }
 
   // A final event may arrive without a trailing blank line.
-  const last = buffer.replace(/\r$/, '');
+  const last = buffer.endsWith('\r') ? buffer.slice(0, -1) : buffer;
   if (last !== '') {
     addLine(last);
   }

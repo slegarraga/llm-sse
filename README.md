@@ -14,7 +14,7 @@
 Security posture is tracked in [docs/security-posture.md](https://github.com/slegarraga/llm-sse/blob/main/docs/security-posture.md),
 including CodeQL, OpenSSF Scorecard, Dependabot and branch rules.
 
-Each provider streams differently. OpenAI sends `choices[].delta` chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini sends `candidates[].content.parts` — and the SSE framing, tool-call argument fragments and stop reasons are all shaped differently. `llm-sse` turns any of them into the same small set of events, so your streaming UI or agent loop stays provider-agnostic.
+Each provider streams differently. OpenAI sends `choices[].delta` chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini sends `candidates[].content.parts`, and the SSE framing, tool-call argument fragments and stop reasons are all shaped differently. `llm-sse` turns any of them into the same small set of events, so your streaming UI or agent loop stays provider-agnostic.
 
 ## Quickstart
 
@@ -112,11 +112,11 @@ for await (const event of parseOpenAIStream(res.body)) {
 
 ## Why
 
-- **One event shape, three providers.** `text`, `tool_call_start`, `tool_call_delta`, `finish`, `error` — the same whether the bytes came from OpenAI, Anthropic or Gemini.
+- **One event shape, three providers.** `text`, `tool_call_start`, `tool_call_delta`, `finish`, `error`, the same whether the bytes came from OpenAI, Anthropic or Gemini.
 - **Tool calls just accumulate.** Streamed JSON argument fragments carry an `index`; concatenate by index (or let `collectStream` do it) to get the full call.
 - **Correct SSE framing.** Robust to chunk boundaries splitting a line or event mid-way, CRLF, multi-line `data:` fields, comments and keep-alives.
 - **Fixture-backed provider coverage.** Public OpenAI, Anthropic and Gemini `.sse` fixtures exercise text, reasoning, tool-call arguments and finish reasons.
-- **Bytes or strings.** Feed it a `fetch()` `ReadableStream<Uint8Array>`, a Node stream, or an async iterable of strings — multibyte UTF-8 split across chunks is handled.
+- **Bytes or strings.** Feed it a `fetch()` `ReadableStream<Uint8Array>`, a Node stream, or an async iterable of strings. Multibyte UTF-8 split across chunks is handled.
 - **Zero dependencies**, ESM + CJS, fully typed.
 
 ## Why not the provider SDK?
@@ -133,7 +133,7 @@ npm install llm-sse
 
 ### `parseOpenAIStream(source)` · `parseAnthropicStream(source)` · `parseGeminiStream(source)`
 
-Each takes a `source` (`AsyncIterable<Uint8Array | string>` — `fetch().body` satisfies this) and returns an `AsyncGenerator<StreamEvent>`.
+Each takes a `source` (`AsyncIterable<Uint8Array | string>`, `fetch().body` satisfies this) and returns an `AsyncGenerator<StreamEvent>`.
 
 > Gemini: use the SSE form of the streaming endpoint (`streamGenerateContent?alt=sse`).
 
@@ -165,12 +165,12 @@ Drains an event stream into a single message:
 const { text, reasoning, toolCalls, finishReason } = await collectStream(
   parseAnthropicStream(res.body),
 );
-// toolCalls: { index, id?, name?, arguments }[]  — arguments is the joined JSON string
+// toolCalls: { index, id?, name?, arguments }[], arguments is the joined JSON string
 ```
 
 ### `toAssistantMessage(collected)`
 
-Turn a collected stream into a standard OpenAI-shape assistant message — the format `llm-messages` treats as canonical — so a streamed response composes straight back into your history or into a different provider:
+Turn a collected stream into a standard OpenAI-shape assistant message, the format `llm-messages` treats as canonical, so a streamed response composes straight back into your history or into a different provider:
 
 ```ts
 import { collectStream, toAssistantMessage } from 'llm-sse';

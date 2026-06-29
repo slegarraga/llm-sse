@@ -116,7 +116,7 @@ for await (const event of parseOpenAIStream(res.body)) {
 - **Tool calls just accumulate.** Streamed JSON argument fragments carry an `index`; concatenate by index (or let `collectStream` do it) to get the full call.
 - **Correct SSE framing.** Robust to chunk boundaries splitting a line or event mid-way, CRLF, multi-line `data:` fields, comments and keep-alives.
 - **Fixture-backed provider coverage.** Public OpenAI, Anthropic and Gemini `.sse` fixtures exercise text, reasoning, tool-call arguments and finish reasons.
-- **Bytes or strings.** Feed it a `fetch()` `ReadableStream<Uint8Array>`, a Node stream, or an async iterable of strings, multibyte UTF-8 split across chunks is handled.
+- **Bytes or strings.** Feed it a `fetch()` `ReadableStream<Uint8Array>`, a Node stream, or an async iterable of strings. Multibyte UTF-8 split across chunks is handled.
 - **Zero dependencies**, ESM + CJS, fully typed.
 
 ## Why not the provider SDK?

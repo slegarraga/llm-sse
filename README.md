@@ -50,7 +50,7 @@ const res = await fetch('https://api.anthropic.com/v1/messages', {
     'content-type': 'application/json',
   },
   body: JSON.stringify({
-    model: 'claude-opus-4-5',
+    model: 'claude-opus-4-8',
     max_tokens: 1024,
     stream: true,
     messages,
@@ -121,7 +121,7 @@ for await (const event of parseOpenAIStream(res.body)) {
 
 ## Why not the provider SDK?
 
-The official SDKs (openai, @anthropic-ai/sdk, @google/generative-ai) each ship their own streaming abstraction, so combining two providers means learning two APIs and writing two adapter paths in your agent or UI. `llm-sse` is a thin, zero-dependency layer that normalizes the wire format only — you keep your own fetch/retry/auth logic, and every provider becomes the same three event types. If you are already using a provider SDK exclusively and do not plan to switch, the SDK's streaming helpers may be sufficient; this library is most useful when you need provider portability, a minimal footprint, or control over the HTTP layer.
+The official SDKs (openai, @anthropic-ai/sdk, @google/generative-ai) each ship their own streaming abstraction, so combining two providers means learning two APIs and writing two adapter paths in your agent or UI. `llm-sse` is a thin, zero-dependency layer that normalizes the wire format only. You keep your own fetch/retry/auth logic, and every provider becomes the same three event types. If you are already using a provider SDK exclusively and do not plan to switch, the SDK's streaming helpers may be sufficient; this library is most useful when you need provider portability, a minimal footprint, or control over the HTTP layer.
 
 ## Install
 
@@ -137,7 +137,7 @@ Each takes a `source` (`AsyncIterable<Uint8Array | string>` — `fetch().body` s
 
 > Gemini: use the SSE form of the streaming endpoint (`streamGenerateContent?alt=sse`).
 
-> **OpenAI-compatible providers** (Groq, DeepSeek, OpenRouter, Together, Fireworks, Ollama, ...) emit the same chunk format — use `parseOpenAIStream` for them. Reasoning models that stream `reasoning_content` (e.g. DeepSeek R1) surface as `reasoning` events.
+> **OpenAI-compatible providers** (Groq, DeepSeek, OpenRouter, Together, Fireworks, Ollama, ...) emit the same chunk format; use `parseOpenAIStream` for them. Reasoning models that stream `reasoning_content` (e.g. DeepSeek R1) surface as `reasoning` events.
 
 ### `parseStream(source, provider)`
 

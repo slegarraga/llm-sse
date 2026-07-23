@@ -11,6 +11,10 @@ interface FixtureCase {
 
 const cases: FixtureCase[] = [
   { provider: 'openai', name: 'openai-weather-tool' },
+  {
+    provider: 'openai-responses',
+    name: 'openai-responses-weather-tool',
+  },
   { provider: 'anthropic', name: 'anthropic-weather-tool' },
   { provider: 'gemini', name: 'gemini-weather-tool' },
 ];

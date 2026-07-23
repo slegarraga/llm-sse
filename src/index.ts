@@ -1,6 +1,7 @@
 export {
   parseStream,
   parseOpenAIStream,
+  parseOpenAIResponsesStream,
   parseAnthropicStream,
   parseGeminiStream,
 } from './parse.ts';

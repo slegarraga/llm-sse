@@ -9,16 +9,64 @@
 [![license](https://img.shields.io/npm/l/llm-sse.svg)](./LICENSE)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](./package.json)
 
-> Zero-dependency SSE parser that turns OpenAI, Anthropic, Gemini and any OpenAI-compatible stream into one unified event shape: text deltas, reasoning, tool-call fragments and finish reasons, handled the same way regardless of provider.
+> Zero-dependency SSE parser that turns OpenAI Responses, OpenAI Chat Completions, Anthropic, Gemini and OpenAI-compatible streams into one unified event shape: text deltas, reasoning, tool-call fragments and finish reasons, handled the same way regardless of provider.
 
 Security posture is tracked in [docs/security-posture.md](https://github.com/slegarraga/llm-sse/blob/main/docs/security-posture.md),
 including CodeQL, OpenSSF Scorecard, Dependabot and branch rules.
 
-Each provider streams differently. OpenAI sends `choices[].delta` chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini sends `candidates[].content.parts`, and the SSE framing, tool-call argument fragments and stop reasons are all shaped differently. `llm-sse` turns any of them into the same small set of events, so your streaming UI or agent loop stays provider-agnostic.
+Each API streams differently. OpenAI Responses sends typed `response.*` events,
+OpenAI Chat Completions sends `choices[].delta` chunks, Anthropic sends typed
+`content_block_*` / `message_*` events, and Gemini sends
+`candidates[].content.parts`. `llm-sse` turns all of them into the same small
+set of events, so your streaming UI or agent loop stays provider-agnostic.
+
+## Project
+
+- [Roadmap](./ROADMAP.md): compatibility, conformance, and sustainability priorities
+- [Contributing](./CONTRIBUTING.md): local setup, tests, and pull-request expectations
+- [Governance](./GOVERNANCE.md): decision process and the path to reviewer or maintainer
+- [Support](./SUPPORT.md): where to ask questions or report reproducible bugs
+- [Security](./SECURITY.md): private vulnerability reporting and supported versions
+- [Changelog](./CHANGELOG.md): release history and migration notes
+- [Code of Conduct](./CODE_OF_CONDUCT.md): community standards
 
 ## Quickstart
 
-### OpenAI
+### OpenAI Responses API
+
+```ts
+import { parseOpenAIResponsesStream } from 'llm-sse';
+
+const res = await fetch('https://api.openai.com/v1/responses', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${key}`,
+    'content-type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: process.env.OPENAI_MODEL,
+    input: 'What is the weather in Santiago?',
+    tools,
+    stream: true,
+  }),
+});
+
+for await (const event of parseOpenAIResponsesStream(res.body)) {
+  if (event.type === 'text') process.stdout.write(event.text);
+  if (event.type === 'tool_call_delta') {
+    process.stderr.write(event.argumentsDelta);
+  }
+}
+```
+
+The parser follows the official
+[Responses streaming event reference](https://platform.openai.com/docs/api-reference/responses-streaming),
+including output text, reasoning summaries, function-call arguments,
+refusal text, completion, incomplete responses, and errors. Refusal deltas use
+the normalized `text` channel so provider-agnostic UIs do not drop the model's
+response.
+
+### OpenAI Chat Completions
 
 ```ts
 import { parseOpenAIStream } from 'llm-sse';
@@ -29,7 +77,11 @@ const res = await fetch('https://api.openai.com/v1/chat/completions', {
     Authorization: `Bearer ${key}`,
     'content-type': 'application/json',
   },
-  body: JSON.stringify({ model: 'gpt-4o', messages, stream: true }),
+  body: JSON.stringify({
+    model: process.env.OPENAI_MODEL,
+    messages,
+    stream: true,
+  }),
 });
 
 for await (const event of parseOpenAIStream(res.body)) {
@@ -112,16 +164,29 @@ for await (const event of parseOpenAIStream(res.body)) {
 
 ## Why
 
-- **One event shape, three providers.** `text`, `tool_call_start`, `tool_call_delta`, `finish`, `error`, the same whether the bytes came from OpenAI, Anthropic or Gemini.
+- **One event shape, four streaming formats.** `text`, `reasoning`, `tool_call_start`, `tool_call_delta`, `finish`, and `error`, whether the bytes came from OpenAI Responses, OpenAI Chat Completions, Anthropic, or Gemini.
 - **Tool calls just accumulate.** Streamed JSON argument fragments carry an `index`; concatenate by index (or let `collectStream` do it) to get the full call.
 - **Correct SSE framing.** Robust to chunk boundaries splitting a line or event mid-way, CRLF, multi-line `data:` fields, comments and keep-alives.
 - **Fixture-backed provider coverage.** Public OpenAI, Anthropic and Gemini `.sse` fixtures exercise text, reasoning, tool-call arguments and finish reasons.
 - **Bytes or strings.** Feed it a `fetch()` `ReadableStream<Uint8Array>`, a Node stream, or an async iterable of strings. Multibyte UTF-8 split across chunks is handled.
 - **Zero dependencies**, ESM + CJS, fully typed.
 
+| Streaming source               | Parser                       | Text |     Reasoning     | Function calls | Finish and errors |
+| ------------------------------ | ---------------------------- | :--: | :---------------: | :------------: | :---------------: |
+| OpenAI Responses API           | `parseOpenAIResponsesStream` |  ✓   |         ✓         |       ✓        |         ✓         |
+| OpenAI Chat Completions        | `parseOpenAIStream`          |  ✓   | compatible fields |       ✓        |         ✓         |
+| Anthropic Messages             | `parseAnthropicStream`       |  ✓   |         ✓         |       ✓        |         ✓         |
+| Gemini `streamGenerateContent` | `parseGeminiStream`          |  ✓   |         ✓         |       ✓        |         ✓         |
+
 ## Why not the provider SDK?
 
-The official SDKs (openai, @anthropic-ai/sdk, @google/generative-ai) each ship their own streaming abstraction, so combining two providers means learning two APIs and writing two adapter paths in your agent or UI. `llm-sse` is a thin, zero-dependency layer that normalizes the wire format only. You keep your own fetch/retry/auth logic, and every provider becomes the same three event types. If you are already using a provider SDK exclusively and do not plan to switch, the SDK's streaming helpers may be sufficient; this library is most useful when you need provider portability, a minimal footprint, or control over the HTTP layer.
+The official SDKs each ship their own streaming abstraction, so combining APIs
+means learning multiple event models and writing multiple adapter paths in your
+agent or UI. `llm-sse` is a thin, zero-dependency layer that normalizes the wire
+format only. You keep your own fetch, retry, and authentication logic. If you
+use one provider exclusively, its SDK helpers may be sufficient; this library is
+most useful when you need provider portability, a minimal footprint, or control
+over the HTTP layer.
 
 ## Install
 
@@ -130,6 +195,13 @@ npm install llm-sse
 ```
 
 ## API
+
+### `parseOpenAIResponsesStream(source)`
+
+Parses typed OpenAI Responses API SSE events. It maps
+`response.output_text.delta`, reasoning deltas, function-call item and argument
+events, and terminal response states into normalized events. The Responses
+`output_index` is used as the normalized tool-call index.
 
 ### `parseOpenAIStream(source)` · `parseAnthropicStream(source)` · `parseGeminiStream(source)`
 
@@ -141,7 +213,8 @@ Each takes a `source` (`AsyncIterable<Uint8Array | string>`, `fetch().body` sati
 
 ### `parseStream(source, provider)`
 
-Same thing, dispatching on `provider` (`'openai' | 'anthropic' | 'gemini'`).
+Same thing, dispatching on `provider`
+(`'openai-responses' | 'openai' | 'anthropic' | 'gemini'`).
 
 ### `StreamEvent`
 
@@ -155,7 +228,9 @@ type StreamEvent =
   | { type: 'error'; error: unknown };
 ```
 
-> `reasoning` carries the model's thinking (Anthropic extended thinking `thinking_delta` and Gemini `thought` parts) separately from `text`, so you can render it in its own affordance or drop it.
+> `reasoning` carries OpenAI reasoning text or summaries, Anthropic extended
+> thinking, and Gemini thought parts separately from `text`, so you can render
+> it in its own affordance or drop it.
 
 ### `collectStream(events)`
 
@@ -271,13 +346,19 @@ const result2 = await complete('openai', openaiResponse);
 
 ## Tool calls
 
-All three providers are normalized to the same pattern: a `tool_call_start` (with `index`, and `id` / `name` when available) followed by one or more `tool_call_delta`s whose `argumentsDelta` strings concatenate into the call's JSON arguments. OpenAI and Anthropic fragment the arguments; Gemini sends them whole in a single delta. `collectStream` joins them for you.
+All supported APIs are normalized to the same pattern: a `tool_call_start`
+(with `index`, and `id` / `name` when available) followed by one or more
+`tool_call_delta`s whose `argumentsDelta` strings concatenate into the call's
+JSON arguments. OpenAI Responses uses its stable `output_index`; Chat
+Completions and Anthropic stream argument fragments; Gemini sends arguments
+whole in a single delta. `collectStream` joins them for you.
 
 ## Fixture corpus
 
 The package includes a small public fixture corpus under [`fixtures/`](https://github.com/slegarraga/llm-sse/tree/main/fixtures):
 
 - `openai-weather-tool.sse`
+- `openai-responses-weather-tool.sse`
 - `anthropic-weather-tool.sse`
 - `gemini-weather-tool.sse`
 - expected normalized events and collected messages under `fixtures/expected/`
@@ -286,6 +367,15 @@ Each fixture describes the same semantic turn: reasoning, visible text, a
 `get_weather` tool call, JSON arguments and provider-specific finish reason.
 The tests parse the fixtures directly, including byte-split stream boundaries,
 so contributors can change parsers with a stable cross-provider contract.
+
+## Community
+
+Contributions are welcome, especially sanitized provider fixtures, reproducible
+edge cases, interoperability examples, and review help. Start with
+[CONTRIBUTING.md](./CONTRIBUTING.md), use
+[Discussions](https://github.com/slegarraga/llm-sse/discussions) for design
+questions, and see [GOVERNANCE.md](./GOVERNANCE.md) for how sustained
+contributors can become reviewers or maintainers.
 
 ## Related
 

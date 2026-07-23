@@ -1,6 +1,7 @@
 import { mapAnthropic } from './providers/anthropic.ts';
 import { mapGemini } from './providers/gemini.ts';
 import { mapOpenAI } from './providers/openai.ts';
+import { mapOpenAIResponses } from './providers/openai-responses.ts';
 import { sseData } from './sse.ts';
 import type { ChunkSource, Provider, StreamEvent } from './types.ts';
 
@@ -34,6 +35,13 @@ export function parseOpenAIStream(
   source: ChunkSource,
 ): AsyncGenerator<StreamEvent> {
   return parseWith(source, mapOpenAI);
+}
+
+/** Parse an OpenAI Responses API stream into normalized events. */
+export function parseOpenAIResponsesStream(
+  source: ChunkSource,
+): AsyncGenerator<StreamEvent> {
+  return parseWith(source, mapOpenAIResponses);
 }
 
 /** Parse an Anthropic Messages stream into normalized events. */
@@ -76,6 +84,8 @@ export function parseStream(
   switch (provider) {
     case 'openai':
       return parseOpenAIStream(source);
+    case 'openai-responses':
+      return parseOpenAIResponsesStream(source);
     case 'anthropic':
       return parseAnthropicStream(source);
     case 'gemini':

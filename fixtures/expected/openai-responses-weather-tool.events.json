@@ -1,0 +1,17 @@
+[
+  { "type": "reasoning", "text": "Need weather lookup. " },
+  { "type": "text", "text": "Let me check Santiago. " },
+  {
+    "type": "tool_call_start",
+    "index": 2,
+    "id": "call_weather_1",
+    "name": "get_weather"
+  },
+  { "type": "tool_call_delta", "index": 2, "argumentsDelta": "{\"city\":" },
+  {
+    "type": "tool_call_delta",
+    "index": 2,
+    "argumentsDelta": "\"Santiago\",\"units\":\"metric\"}"
+  },
+  { "type": "finish", "reason": "completed" }
+]

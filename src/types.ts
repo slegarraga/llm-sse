@@ -1,14 +1,15 @@
-/** The provider whose streaming format is being parsed. */
-export type Provider = 'openai' | 'anthropic' | 'gemini';
+/** The provider/API whose streaming format is being parsed. */
+export type Provider = 'openai' | 'openai-responses' | 'anthropic' | 'gemini';
 
 /**
  * A single normalized event emitted while parsing a provider stream.
  *
- * The three providers stream very differently — OpenAI sends `choices[].delta`
- * chunks, Anthropic sends typed `content_block_*` / `message_*` events, Gemini
- * sends `candidates[].content.parts` — but they all reduce to the same handful
- * of things: text arrived, a tool call started, tool-call arguments arrived,
- * the turn finished, or the provider reported an error.
+ * The providers stream very differently — OpenAI Chat Completions sends
+ * `choices[].delta` chunks, OpenAI Responses sends typed `response.*` events,
+ * Anthropic sends `content_block_*` / `message_*` events, and Gemini sends
+ * `candidates[].content.parts` — but they all reduce to the same handful of
+ * things: text arrived, reasoning arrived, a tool call started, tool-call
+ * arguments arrived, the turn finished, or the provider reported an error.
  */
 export type StreamEvent =
   /** A chunk of assistant text. */

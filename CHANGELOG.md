@@ -6,6 +6,29 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-23
+
+### Added
+
+- `parseOpenAIResponsesStream(source)` and the `openai-responses` dispatcher
+  target for typed OpenAI Responses API streams.
+- Normalization for Responses API text, reasoning summaries, function-call
+  arguments, refusal text, completion, incomplete responses, and errors.
+- A public Responses API weather-tool fixture with normalized event and
+  collected-message expectations.
+- Public roadmap, governance, support channels, and a documented path from
+  contributor to maintainer.
+
+### Changed
+
+- Project documentation now links contribution, security, governance, support,
+  roadmap, and release resources from the README.
+- The published tarball now includes those public project documents and is
+  installation-tested before release.
+- Development tooling overrides `esbuild` to a patched release so a clean
+  install passes `npm audit` without changing the package's zero-dependency
+  runtime.
+
 ## [0.4.9] - 2026-06-29
 
 ### Changed
@@ -117,6 +140,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and `Uint8Array` or string sources.
 - Zero runtime dependencies; ESM + CJS builds with type declarations.
 
+[0.5.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.5.0
+[0.4.9]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.9
+[0.4.8]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.8
+[0.4.7]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.7
+[0.4.6]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.6
+[0.4.5]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.5
+[0.4.4]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.4
+[0.4.3]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.3
+[0.4.2]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.2
+[0.4.1]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.1
 [0.4.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.4.0
 [0.3.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.3.0
 [0.2.0]: https://github.com/slegarraga/llm-sse/releases/tag/v0.2.0

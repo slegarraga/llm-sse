@@ -1,7 +1,7 @@
 {
   "name": "llm-sse",
-  "version": "0.4.9",
-  "description": "Parse streaming SSE responses from OpenAI, Anthropic, Gemini and OpenAI-compatible providers into one unified event format. Text, reasoning and tool-call deltas. Zero dependencies.",
+  "version": "0.5.0",
+  "description": "Parse OpenAI Responses and Chat Completions, Anthropic, Gemini and OpenAI-compatible SSE streams into one unified event format. Zero dependencies.",
   "keywords": [
     "openai",
     "anthropic",
@@ -48,7 +48,14 @@
   "files": [
     "dist",
     "fixtures",
+    "docs",
     "README.md",
+    "ROADMAP.md",
+    "GOVERNANCE.md",
+    "SUPPORT.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
     "LICENSE",
     "CHANGELOG.md"
   ],
@@ -58,14 +65,20 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build && npm run pack:check && npm run pack:smoke",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepublishOnly": "npm run build",
+    "pack:check": "npm pack --dry-run --foreground-scripts=false",
+    "pack:smoke": "node scripts/pack-smoke.mjs",
+    "prepublishOnly": "npm run check",
     "prepare": "npm run build"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
